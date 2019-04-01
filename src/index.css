@@ -1,14 +1,28 @@
 body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin: 0;
+  border: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  width: 100vw;
+  height: 100vh;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+.puzzle {
+  position: relative;
+  background-color: white;
+}
+
+.background {
+  width: 100%;
+  height: 100%;
+  opacity: 0.25;
+}
+
+.square {
+  position: absolute;
+  overflow: hidden;
+  transition: 0.25s ease-in-out;
+  cursor: pointer;
 }
