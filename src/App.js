@@ -17,7 +17,39 @@ class App extends Component {
   componentWillMount() {
     this.formatPuzzle(true);
 
-    window.addEventListener('resize', this.formatPuzzle);
+    window.addEventListener('resize', () => {this.formatPuzzle()});
+  }
+
+  buildPuzzle = () => {
+    let squares   = [];
+    let positions = [];
+
+    for (let row = 0; row < this.state.rows; row++) {
+      for (let column = 0; column < this.state.columns; column++) {
+        const id = row * this.state.columns + column;
+        const position = {
+          column,
+          row
+        };
+        const square = {
+          backgroundPosition: {
+            column,
+            row
+          },
+          style: {
+            opacity: (id === (this.state.columns * this.state.rows) - 1) ? '0'  : '1',
+            zIndex:  (id === (this.state.columns * this.state.rows) - 1) ? '-1' : id
+          }
+        };
+
+        squares.push(square);
+        positions.push(position);
+      }
+    }
+
+    squares = this.shuffleSquares(squares, positions);
+
+    this.setState({squares});
   }
 
   formatPuzzle = (isInit = false) => {
@@ -28,83 +60,52 @@ class App extends Component {
     const puzzleScale     = Math.floor(puzzleWidth / this.state.backgroundWidth);
     const squareWidth     = Math.floor(puzzleWidth / this.state.columns);
     const squareHeight    = Math.floor(puzzleHeight / this.state.rows);
-    let   squares         = [];
-
-    for (let row = 0; row < this.state.rows; row++) {
-      for (let column = 0; column < this.state.columns; column++) {
-        const x = column * squareWidth;
-        const y = row * squareHeight;
-        const id = row * this.state.columns + column;
-        let square = {
-          x: x,
-          y: y,
-          style: {
-            width: squareWidth,
-            height: squareHeight,
-            backgroundImage: `url(${this.state.img})`,
-            backgroundPosition: `${(0 - x)}px ${(0 - y)}px`,
-            backgroundSize: `${puzzleWidth}px ${puzzleHeight}px`,
-            opacity: (id === (this.state.columns * this.state.rows) - 1) ? '0' : '1',
-            zIndex:  (id === (this.state.columns * this.state.rows) - 1) ? '-1' : id
-          }
-        };
-
-        squares.push(square);
-      }
-    }
-
-    if (isInit) {
-      squares = this.shuffleSquares(squares);
-    }
 
     this.setState({
       puzzleHeight,
       puzzleScale,
       puzzleWidth,
       squareHeight,
-      squareWidth,
-      squares
+      squareWidth
+    }, () => {
+      if (isInit) {
+        this.buildPuzzle();
+      }
     });
-  }
+  };
 
   handleClick = (index) => {
     let squares = this.state.squares.slice();
     const empty = this.state.squares[this.state.squares.length - 1];
 
-    if (empty.y === squares[index].y) {
-      if (empty.x - squares[index].x === this.state.squareWidth) {
-        squares[index].x += this.state.squareWidth;
-        empty.x -= this.state.squareWidth;
-      } else if (empty.x - squares[index].x === 0 - this.state.squareWidth) {
-        squares[index].x -= this.state.squareWidth;
-        empty.x += this.state.squareWidth;
+    if (empty.row === squares[index].row) {
+      if (empty.column === squares[index].column + 1) {
+        squares[index].column++;
+        empty.column--;
+      } else if (empty.column === squares[index].column - 1) {
+        squares[index].column--;
+        empty.column++;
       }
-    } else if (empty.x === squares[index].x) {
-      if (empty.y - squares[index].y === this.state.squareHeight) {
-        squares[index].y += this.state.squareHeight;
-        empty.y -= this.state.squareHeight;
-      } else if (empty.y - squares[index].y === 0 - this.state.squareHeight) {
-        squares[index].y -= this.state.squareHeight;
-        empty.y += this.state.squareHeight;
+    } else if (empty.column === squares[index].column) {
+      if (empty.row === squares[index].row + 1) {
+        squares[index].row++;
+        empty.row--;
+      } else if (empty.row === squares[index].row - 1) {
+        squares[index].row--;
+        empty.row++;
       }
     }
 
     this.setState({squares});
   };
 
-  shuffleSquares = (squares) => {
+  shuffleSquares = (squares, positions) => {
     for (let i = 0; i < squares.length; i++) {
-      const index1 = Math.floor(Math.random() * squares.length);
-      const index2 = Math.floor(Math.random() * squares.length);
-      let square1 = squares[index1];
-      let square2 = squares[index2];
-      let coords1 = {x: square1.x, y: square1.y};
-      let coords2 = {x: square2.x, y: square2.y};
+      const slot     = Math.floor(Math.random() * positions.length);
+      const position = positions.splice(slot, 1);
 
-      square1.x = coords2.x;
-      square1.y = coords2.y;
-      square2.x = coords1.x;
-      square2.y = coords1.y;
+      squares[i].column = position[0].column;
+      squares[i].row    = position[0].row;
     }
 
     return squares;
@@ -115,7 +116,7 @@ class App extends Component {
         <div
         className="puzzle"
         style={{
-          width: this.state.puzzleWidth,
+          width:  this.state.puzzleWidth,
           height: this.state.puzzleHeight,
         }}
         >
@@ -123,18 +124,20 @@ class App extends Component {
           className="background"
           style={{
             backgroundImage: `url(${this.state.img})`,
-            backgroundSize: `${this.state.puzzleWidth}px ${this.state.puzzleHeight}px`
+            backgroundSize:  `${this.state.puzzleWidth}px ${this.state.puzzleHeight}px`
           }}
           />
           {this.state.squares.map((square, index) => {
-            let style = {
-              top: square.y,
-              left: square.x,
-              width: square.style.width,
-              height: square.style.height,
-              backgroundImage: square.style.backgroundImage,
-              backgroundPosition: square.style.backgroundPosition,
-              backgroundSize: square.style.backgroundSize,
+            const x     = square.backgroundPosition.column * this.state.squareWidth;
+            const y     = square.backgroundPosition.row * this.state.squareHeight;
+            const style = {
+              top: square.row * this.state.squareHeight,
+              left: square.column * this.state.squareWidth,
+              width: this.state.squareWidth,
+              height: this.state.squareHeight,
+              backgroundPosition: `${(0 - x)}px ${(0 - y)}px`,
+              backgroundImage: `url(${this.state.img})`,
+              backgroundSize: `${this.state.puzzleWidth}px ${this.state.puzzleHeight}px`,
               opacity: square.style.opacity,
               zIndex:  square.style.zIndex
             };
@@ -144,7 +147,10 @@ class App extends Component {
               className="square"
               key={index}
               style={style}
-              onClick={() => {this.handleClick(index)}}
+              onClick={(e) => {
+                e.preventDefault();
+                this.handleClick(index);
+              }}
               />
             );
           })}
