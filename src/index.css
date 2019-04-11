@@ -1,4 +1,11 @@
 body {
+  margin: 0;
+  border: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#root {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -23,6 +30,11 @@ body {
 .square {
   position: absolute;
   overflow: hidden;
-  transition: 0.25s ease-in-out;
   cursor: pointer;
+}
+
+.trans {
+  transition:
+    left 0.25s ease-in-out,
+    top  0.25s ease-in-out;
 }
