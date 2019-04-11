@@ -104,8 +104,8 @@ class App extends Component {
     const emptyRow      = empty.row;
     let   squares       = this.state.squares.slice();
 
-    if (clickedColumn === emptyColumn && clickedRow !== emptyRow || (clickedRow === emptyRow && clickedColumn !== emptyColumn)) {
-      squares.map((square) => {
+    if ((clickedColumn === emptyColumn && clickedRow !== emptyRow) || (clickedRow === emptyRow && clickedColumn !== emptyColumn)) {
+      squares.forEach((square) => {
         if (!(square.column === emptyColumn && square.row === emptyRow)) {
           if (emptyColumn === clickedColumn && square.column === clickedColumn) {
             if (emptyRow > clickedRow && square.row >= clickedRow && square.row < emptyRow) {
