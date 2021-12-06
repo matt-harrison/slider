@@ -11,7 +11,7 @@ class App extends Component {
       backgroundWidth: 1000,
       columns: 4,
       isResizing: false,
-      img: 'http://rootbeercomics.com/illustration/posters/img/flickit-fridays.jpg',
+      img: 'http://rootbeercomics.com/commissions/posters/img/flickit-fridays.jpg',
       puzzleHeight: null,
       puzzleWidth: null,
       rows: 6,
